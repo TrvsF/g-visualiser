@@ -1,6 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog
+import numpy   as np
 import matplotlib.pyplot as plt
+
+from tkinter import filedialog
 
 class Gui(tk.Tk):
     def __init__(self):
@@ -49,6 +51,29 @@ class Gui(tk.Tk):
         self.title_text.pack (fill=tk.X, pady=(32, 28))
         self.file_button.pack(fill=tk.X, pady=(40, 28))
 
+    def display_data(self):
+        window = tk.Toplevel(self.menu_frame)
+        window.title("DATA CHANGE ME")
+        # TODO : rest
+
+    def process_logs(self, data) -> list:
+        population_data = []
+        pop = 0
+        for item in data:
+            elements = item.split(":")
+            event    = elements[0]
+            time     = elements[2]
+
+            pop += 1 if event == "BIRTH" else -1
+            time = int(time) / 64
+
+            population_data.append((time, pop))
+
+        print(population_data)
+        plt.plot(*zip(*population_data))
+        plt.show()
+
+
     def open_fileselect(self):
         print("f")
         ftypes = [("g-sim files", "*.g")]
@@ -59,15 +84,15 @@ class Gui(tk.Tk):
 
     def read_file(self, filename):
         file = open(filename, "r")
-        lines = file.readlines()
-        index = lines[0]
+        data = file.read().splitlines()
+        index = data.pop(0)
 
         if   "AGENT" in index:
             print("AGENT FILE")
-        elif "LOGS" in index:
-            print("LOGS FILE")
+        elif "LOGS"  in index:
+            self.process_logs(data)
 
-        print(lines)
+        self.display_data()
 
     def safe_destroy(self) -> None:
         # stop any ongoing tasks
