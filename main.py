@@ -3,6 +3,7 @@ import numpy   as np
 import matplotlib.pyplot as plt
 
 from tkinter import filedialog
+from ast import literal_eval
 
 class Gui(tk.Tk):
     def __init__(self):
@@ -73,6 +74,12 @@ class Gui(tk.Tk):
         plt.plot(*zip(*population_data))
         plt.show()
 
+        return population_data
+
+    def process_agent(self, data):
+        xs = []
+        ys = []
+        
 
     def open_fileselect(self):
         print("f")
@@ -83,8 +90,8 @@ class Gui(tk.Tk):
             self.read_file(dlg)
 
     def read_file(self, filename):
-        file = open(filename, "r")
-        data = file.read().splitlines()
+        file  = open(filename, "r")
+        data  = file.read().splitlines()
         index = data.pop(0)
 
         if   "AGENT" in index:
@@ -92,7 +99,7 @@ class Gui(tk.Tk):
         elif "LOGS"  in index:
             self.process_logs(data)
 
-        self.display_data()
+        # self.display_data()
 
     def safe_destroy(self) -> None:
         # stop any ongoing tasks
