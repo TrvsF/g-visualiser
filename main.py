@@ -72,6 +72,7 @@ class Gui(tk.Tk):
             population_data.append((time, pop))
 
         plt.close()
+        plt.figure("population")
         plt.plot(*zip(*population_data))
         plt.xlabel("time (seconds)")
         plt.ylabel("agent population")
@@ -100,11 +101,13 @@ class Gui(tk.Tk):
         xs.append(xs[0])
         ys.append(ys[0])
 
-        ctuple = literal_eval(colour)
+        ctuple   = literal_eval(colour)
+        cutple_n = tuple(c/255 for c in ctuple)
 
         plt.close()
+        plt.figure(name)
         plt.axis('off')
-        plt.plot(xs, ys, color=ctuple)
+        plt.plot(xs, ys, color=cutple_n)
         plt.show()
 
 
