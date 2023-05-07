@@ -71,7 +71,7 @@ class Gui(tk.Tk):
 
             population_data.append((time, pop))
 
-        print(population_data)
+        plt.close()
         plt.plot(*zip(*population_data))
         plt.xlabel("time (seconds)")
         plt.ylabel("agent population")
@@ -84,7 +84,7 @@ class Gui(tk.Tk):
         
         name   = datapoints[0]
         colour = datapoints[1]
-        shapes  = datapoints[2]
+        shapes = datapoints[2]
 
         shapelist = re.split("(\([^)]*\))", shapes)[1::2]
         tuplelist = []
@@ -92,19 +92,19 @@ class Gui(tk.Tk):
         ys = []
         for shape in shapelist:
             tup = literal_eval(shape)
+            tuplelist.append(tup)
+
             xs.append(tup[0])
             ys.append(tup[1])
-
-            tuplelist.append(tup)
 
         xs.append(xs[0])
         ys.append(ys[0])
 
-        print(tuplelist)
-        print(xs)
-        print(ys)
+        ctuple = literal_eval(colour)
 
-        plt.plot(xs, ys)
+        plt.close()
+        plt.axis('off')
+        plt.plot(xs, ys, color=ctuple)
         plt.show()
 
 
