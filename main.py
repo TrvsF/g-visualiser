@@ -1,3 +1,4 @@
+import re
 import tkinter as tk
 import numpy   as np
 import matplotlib.pyplot as plt
@@ -72,17 +73,42 @@ class Gui(tk.Tk):
 
         print(population_data)
         plt.plot(*zip(*population_data))
+        plt.xlabel("time (seconds)")
+        plt.ylabel("agent population")
         plt.show()
 
         return population_data
 
     def process_agent(self, data):
+        datapoints = data.split(":")
+        
+        name   = datapoints[0]
+        colour = datapoints[1]
+        shapes  = datapoints[2]
+
+        shapelist = re.split("(\([^)]*\))", shapes)[1::2]
+        tuplelist = []
         xs = []
         ys = []
-        
+        for shape in shapelist:
+            tup = literal_eval(shape)
+            xs.append(tup[0])
+            ys.append(tup[1])
+
+            tuplelist.append(tup)
+
+        xs.append(xs[0])
+        ys.append(ys[0])
+
+        print(tuplelist)
+        print(xs)
+        print(ys)
+
+        plt.plot(xs, ys)
+        plt.show()
+
 
     def open_fileselect(self):
-        print("f")
         ftypes = [("g-sim files", "*.g")]
         dlg = filedialog.askopenfilename(initialdir="./", filetypes = ftypes)
     
@@ -95,7 +121,7 @@ class Gui(tk.Tk):
         index = data.pop(0)
 
         if   "AGENT" in index:
-            print("AGENT FILE")
+            self.process_agent(data[0])
         elif "LOGS"  in index:
             self.process_logs(data)
 
