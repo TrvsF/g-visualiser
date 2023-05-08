@@ -1,6 +1,5 @@
 import re
 import tkinter as tk
-import numpy   as np
 import matplotlib.pyplot as plt
 
 from tkinter import filedialog
@@ -86,6 +85,10 @@ class Gui(tk.Tk):
         name   = datapoints[0]
         colour = datapoints[1]
         shapes = datapoints[2]
+        if (len(datapoints) > 3): # if agent died
+            age = round(int(datapoints[3]) / 64, 1)
+
+        print(f"alive for {age} seconds")
 
         shapelist = re.split("(\([^)]*\))", shapes)[1::2]
         tuplelist = []
