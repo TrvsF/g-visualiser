@@ -1,4 +1,5 @@
 import re
+import os
 import tkinter as tk
 import matplotlib.pyplot as plt
 
@@ -9,6 +10,8 @@ class Gui(tk.Tk):
     def __init__(self):
         super().__init__()
         
+        self.current_dir = ""
+
         # display base elements
         self.display_menu()
 
@@ -59,18 +62,25 @@ class Gui(tk.Tk):
 
     def process_logs(self, data) -> list:
         population_data = []
+        colour_data = []
         pop = 0
         for item in data:
             elements = item.split(":")
             event    = elements[0]
+            agentid  = elements[1]
             time     = elements[2]
+            time     = int(time) / 64
+            
+            # colour = self.get_colour_from_id(agentid)
 
-            pop += 1 if event == "BIRTH" else -1
-            time = int(time) / 64
+            if event == "BIRTH":
+                pop += 1
+            else:
+                pop -= 1
 
             population_data.append((time, pop))
 
-        plt.close()
+        # pop graph
         plt.figure("population")
         plt.plot(*zip(*population_data))
         plt.xlabel("time (seconds)")
@@ -78,7 +88,19 @@ class Gui(tk.Tk):
         plt.show()
 
         return population_data
-
+    
+    def get_colour_from_id(self, id):
+        filename = f"{self.current_dir}/agents/{id}.g"
+        file  = open(filename, "r")
+        data  = file.read().splitlines()
+        index = data.pop(0)
+        if len(data) == 0:
+            return
+        datapoints = data[0].split(":")
+        colour = datapoints[1]
+        
+        return colour
+    
     def process_agent(self, data):
         datapoints = data.split(":")
         
@@ -125,6 +147,8 @@ class Gui(tk.Tk):
         file  = open(filename, "r")
         data  = file.read().splitlines()
         index = data.pop(0)
+
+        self.current_dir = os.path.dirname(filename)
 
         if   "AGENT" in index:
             self.process_agent(data[0])
