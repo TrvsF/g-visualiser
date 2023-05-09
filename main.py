@@ -62,7 +62,8 @@ class Gui(tk.Tk):
 
     def process_logs(self, data) -> list:
         population_data = []
-        colour_data = []
+        colour_data     = []
+        colour_dict     = {}
         pop = 0
         for item in data:
             elements = item.split(":")
@@ -71,20 +72,38 @@ class Gui(tk.Tk):
             time     = elements[2]
             time     = int(time) / 64
             
-            # colour = self.get_colour_from_id(agentid)
+            colour = self.get_colour_from_id(agentid)
 
             if event == "BIRTH":
                 pop += 1
+                if colour is not None:
+                    colour_dict[colour] = colour_dict.get(colour, 0) + 1
             else:
+                if colour is not None:
+                    colour_dict[colour] = colour_dict.get(colour, 0) - 1
                 pop -= 1
 
+            colour_data.append((time, colour_dict.copy()))
             population_data.append((time, pop))
 
-        # pop graph
+
+        # plot graph
+        plt.close("population")
         plt.figure("population")
         plt.plot(*zip(*population_data))
         plt.xlabel("time (seconds)")
         plt.ylabel("agent population")
+        # plot foreach colour
+        currentcolour = []
+        for key in colour_dict.keys():
+            for time, d in colour_data:
+                if key in d:
+                    currentcolour.append((time, d[key]))
+            ctuple   = literal_eval(key)
+            cutple_n = tuple(c/255 for c in ctuple)
+            plt.plot(*zip(*currentcolour), color=cutple_n)
+            currentcolour.clear()
+        # show charts
         plt.show()
 
         return population_data
@@ -92,26 +111,19 @@ class Gui(tk.Tk):
     def get_colour_from_id(self, id):
         filename = f"{self.current_dir}/agents/{id}.g"
         file  = open(filename, "r")
+
         data  = file.read().splitlines()
         index = data.pop(0)
+
         if len(data) == 0:
             return
+        
         datapoints = data[0].split(":")
         colour = datapoints[1]
         
         return colour
     
-    def process_agent(self, data):
-        datapoints = data.split(":")
-        
-        name   = datapoints[0]
-        colour = datapoints[1]
-        shapes = datapoints[2]
-        if (len(datapoints) > 3): # if agent died
-            age = round(int(datapoints[3]) / 64, 1)
-
-        print(f"alive for {age} seconds")
-
+    def display_agent_data(self, name, colour, shapes, age=0, children=0):
         shapelist = re.split("(\([^)]*\))", shapes)[1::2]
         tuplelist = []
         xs = []
@@ -135,6 +147,22 @@ class Gui(tk.Tk):
         plt.plot(xs, ys, color=cutple_n)
         plt.show()
 
+    def process_agent(self, data, display=False):
+        datapoints = data.split(":")
+        
+        name   = datapoints[0]
+        colour = datapoints[1]
+        shapes = datapoints[2]
+        age    = 0
+        kids   = 0
+
+        if (len(datapoints) > 3): # if agent died
+            age = round(int(datapoints[3]) / 64, 1)
+
+        if display:
+            self.display_agent_data(name, colour, shapes)
+
+        return (name, colour, shapes, age, kids)
 
     def open_fileselect(self):
         ftypes = [("g-sim files", "*.g")]
@@ -151,7 +179,7 @@ class Gui(tk.Tk):
         self.current_dir = os.path.dirname(filename)
 
         if   "AGENT" in index:
-            self.process_agent(data[0])
+            self.process_agent(data[0], display=True)
         elif "LOGS"  in index:
             self.process_logs(data)
 
