@@ -159,7 +159,7 @@ class Gui(tk.Tk):
         kids   = 0
         damage = 0
 
-        isdead = len(datapoints) > 3
+        isdead = len(datapoints) > 4
         if isdead:
             age    = round(int(datapoints[3]) / 64, 1)
             kids   = datapoints[4]
