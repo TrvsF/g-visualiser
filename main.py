@@ -123,7 +123,7 @@ class Gui(tk.Tk):
         
         return colour
     
-    def display_agent_data(self, name, colour, shapes, age=0, children=0):
+    def display_agent_data(self, name, colour, shapes, age=0, children=0, damage=0):
         shapelist = re.split("(\([^)]*\))", shapes)[1::2]
         tuplelist = []
         xs = []
@@ -141,6 +141,8 @@ class Gui(tk.Tk):
         ctuple   = literal_eval(colour)
         cutple_n = tuple(c/255 for c in ctuple)
 
+        print(f"age={age}(s)\nchildren={children}\ndamage={damage}")
+
         plt.close()
         plt.figure(name)
         plt.axis('off')
@@ -155,14 +157,18 @@ class Gui(tk.Tk):
         shapes = datapoints[2]
         age    = 0
         kids   = 0
+        damage = 0
 
-        if (len(datapoints) > 3): # if agent died
-            age = round(int(datapoints[3]) / 64, 1)
+        isdead = len(datapoints) > 3
+        if isdead:
+            age    = round(int(datapoints[3]) / 64, 1)
+            kids   = datapoints[4]
+            damage = datapoints[5]
 
         if display:
-            self.display_agent_data(name, colour, shapes)
+            self.display_agent_data(name, colour, shapes, age, kids, damage) if isdead else self.display_agent_data(name, colour, shapes)
 
-        return (name, colour, shapes, age, kids)
+        return (name, colour, shapes, age, kids, damage)
 
     def open_fileselect(self):
         ftypes = [("g-sim files", "*.g")]
